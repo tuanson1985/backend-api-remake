@@ -26,6 +26,12 @@ export class CreatePermissionDto {
   @MaxLength(50)
   action?: string;
 
+  @ApiProperty({ required: false, example: 'POST /api/v1/users' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  url?: string;
+
   @ApiProperty({ required: false })
   @IsOptional()
   @IsInt()
