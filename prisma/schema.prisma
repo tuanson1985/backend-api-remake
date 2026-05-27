@@ -23,6 +23,11 @@ enum UserStatus {
   BANNED
 }
 
+enum AccessType {
+  ALLOW
+  DENY
+}
+
 // ============================================================
 // Models
 // ============================================================
@@ -177,10 +182,13 @@ model Permission {
   title     String?  @db.VarChar(255)
   module    String?  @db.VarChar(50)
   action    String?  @db.VarChar(50)
+  url       String?  @db.VarChar(500)
   parentId  Int?     @map("parent_id")
   order     Int      @default(0)
   createdAt DateTime @default(now()) @map("created_at")
 
+  parent          Permission?      @relation("PermissionTree", fields: [parentId], references: [id])
+  children        Permission[]     @relation("PermissionTree")
   rolePermissions RolePermission[]
   userPermissions UserPermission[]
 
@@ -188,8 +196,9 @@ model Permission {
 }
 
 model RolePermission {
-  roleId       Int @map("role_id")
-  permissionId Int @map("permission_id")
+  roleId       Int        @map("role_id")
+  permissionId Int        @map("permission_id")
+  accessType   AccessType @default(ALLOW) @map("access_type")
 
   role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
@@ -210,8 +219,9 @@ model UserRole {
 }
 
 model UserPermission {
-  userId       Int @map("user_id")
-  permissionId Int @map("permission_id")
+  userId       Int        @map("user_id")
+  permissionId Int        @map("permission_id")
+  accessType   AccessType @default(ALLOW) @map("access_type")
 
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
